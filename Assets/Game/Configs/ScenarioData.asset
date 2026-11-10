@@ -1,0 +1,70 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6a984ddb9c843e48b7a0140d494ef6c, type: 3}
+  m_Name: ScenarioData
+  m_EditorClassIdentifier: 
+  <ScenarioId>k__BackingField: TestId
+  <ScenarioName>k__BackingField: Test
+  <Description>k__BackingField: "\u0422\u0435\u0441\u0442\u043E\u0432\u044B\u0439
+    \u0441\u0446\u0435\u043D\u0430\u0440\u0438\u0439 "
+  <Steps>k__BackingField:
+  - <Id>k__BackingField: TestStep1
+    <Title>k__BackingField: TestStep1
+    <Instruction>k__BackingField: "\u0422\u0435\u0441\u0442\u043E\u0432\u0430\u044F
+      \u0438\u043D\u0441\u0442\u0440\u0443\u043A\u0446\u0438\u044F 1"
+  - <Id>k__BackingField: TestStep2
+    <Title>k__BackingField: TestStep2
+    <Instruction>k__BackingField: "\u0422\u0435\u0441\u0442\u043E\u0432\u0430\u044F
+      \u0438\u043D\u0441\u0442\u0440\u0443\u043A\u0446\u0438\u044F 2"
+  - <Id>k__BackingField: TestStep3
+    <Title>k__BackingField: TestStep3
+    <Instruction>k__BackingField: "\u0422\u0435\u0441\u0442\u043E\u0432\u0430\u044F
+      \u0438\u043D\u0441\u0442\u0440\u0443\u043A\u0446\u0438\u044F 3"
+  - <Id>k__BackingField: TestStep4
+    <Title>k__BackingField: TestStep4
+    <Instruction>k__BackingField: "\u0422\u0435\u0441\u0442\u043E\u0432\u0430\u044F
+      \u0438\u043D\u0441\u0442\u0440\u0443\u043A\u0446\u0438\u044F 4"
+  - <Id>k__BackingField: TestStep5
+    <Title>k__BackingField: TestStep5
+    <Instruction>k__BackingField: "\u0422\u0435\u0441\u0442\u043E\u0432\u0430\u044F
+      \u0438\u043D\u0441\u0442\u0440\u0443\u043A\u0446\u0438\u044F 5"
+  - <Id>k__BackingField: TestStep6
+    <Title>k__BackingField: TestStep6
+    <Instruction>k__BackingField: "\u0422\u0435\u0441\u0442\u043E\u0432\u0430\u044F
+      \u0438\u043D\u0441\u0442\u0440\u0443\u043A\u0446\u0438\u044F 6"
+  <TrainingPlan>k__BackingField:
+  - <Name>k__BackingField: TrainingTest1
+    <StepIds>k__BackingField:
+    - TestStep1
+    - TestStep2
+    - TestStep3
+  - <Name>k__BackingField: TrainingTest2
+    <StepIds>k__BackingField:
+    - TestStep2
+    - TestStep5
+    - TestStep6
+  <ExamPlan>k__BackingField:
+  - <Name>k__BackingField: ExamTest1
+    <StepIds>k__BackingField:
+    - TestStep1
+    - TestStep2
+    - TestStep3
+    - TestStep4
+    - TestStep5
+    - TestStep6
+  <ExamGroups>k__BackingField:
+  - <Name>k__BackingField: ExamTestGroup1
+    <StepIds>k__BackingField:
+    - TestStep1
+    - TestStep2
+    - TestStep3
+    <ViolationLimit>k__BackingField: 1
