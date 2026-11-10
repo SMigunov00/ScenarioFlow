@@ -47,7 +47,29 @@ public sealed class ScenarioDebugControls : MonoBehaviour
             _runner.SelectAnalyzer(AnalyzerType.ExamScore);
     }
     
-    [ContextMenu("Тест/4. Завершить сценарий")]
+    [ContextMenu("Тест/4. Показать состояние прохождения")]
+    private void PrintRunState()
+    {
+        if (_runner.CurrentRun == null)
+        {
+            Debug.Log($"Прохождение ещё не создано {this}");
+            return;
+        }
+        var currentRun = _runner.CurrentRun;
+
+        Debug.Log($"Прохождение: {currentRun.RunId}\n" +
+                  $"Статус: {currentRun.Status}\n" +
+                  $"Количество шагов: {currentRun.Steps.Count}" +
+                  $"{this}");
+
+        foreach (var entry in currentRun.Steps)
+        {
+            StepState step = entry.Value;
+            Debug.Log($"{step.StepId}: {step.Status}, попыток: {step.AttemptsCount}, нарушений: {step.ViolationsCount} {this}");
+        }
+    }
+    
+    [ContextMenu("Тест/5. Завершить сценарий")]
     public void FinishRun()
     {
         if (CanExecute())
@@ -71,15 +93,13 @@ public sealed class ScenarioDebugControls : MonoBehaviour
         return true;
     }
 
-    private void OnRunStarted(
-        ScenarioData scenario,
-        RunSettings settings)
+    private void OnRunStarted(ScenarioData scenario, RunSettings settings)
     {
         Debug.Log($"[Старт] {scenario.ScenarioName}\n" +
                   $"Режим: {settings.Mode}\n" +
                   $"Логгер: {settings.LoggerType}\n" +
-                  $"Анализатор: {settings.AnalyzerType}",
-            this);
+                  $"Анализатор: {settings.AnalyzerType}" +
+                  $"{this}");
     }
 
     private void OnRunFinished()

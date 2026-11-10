@@ -7,9 +7,11 @@ public class ScenarioRunner : MonoBehaviour
     [SerializeField] private RunSettings _defaultSettings = new RunSettings();
 
     private RunSettings _runtimeSettings;
-    public bool IsRunning { get; private set; }
+    public RunState CurrentRun { get; private set; }
 
-    public bool HasRun => _runtimeSettings != null;
+    public bool IsRunning => CurrentRun != null && CurrentRun.Status == RunStatus.Running;
+    public bool HasRun => CurrentRun != null;
+    
     public AnalyzerType SelectedAnalyzer => _runtimeSettings != null ? _runtimeSettings.AnalyzerType : _defaultSettings.AnalyzerType;
 
     public event Action<ScenarioData, RunSettings> RunStarted;
@@ -42,8 +44,20 @@ public class ScenarioRunner : MonoBehaviour
             return;
         }
 
+        RunState newRun;
+        try
+        {
+            newRun = new RunState(_scenarioData);
+        }
+        catch (ArgumentException exception)
+        {
+            Debug.LogError($"Не удалось запустить сценарий: {exception.Message} {this}");
+            return;
+        }
+
         _runtimeSettings = _defaultSettings.CreateCopy();
-        IsRunning = true;
+        
+        CurrentRun = newRun;
         Debug.Log($"Запуск:{_scenarioData.ScenarioName}\n" +
                   $"Режим: {_runtimeSettings.Mode}\n" +
                   $"Логгер: {_runtimeSettings.LoggerType}\n" +
@@ -56,7 +70,7 @@ public class ScenarioRunner : MonoBehaviour
     public void FinishScenario()
     {
         if (!IsRunning) return;
-        IsRunning = false;
+        CurrentRun.Finish();
         RunFinished?.Invoke();
         RequestAnalysis();
     }
