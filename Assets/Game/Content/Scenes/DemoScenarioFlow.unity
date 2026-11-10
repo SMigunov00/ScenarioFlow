@@ -461,6 +461,13 @@ MonoBehaviour:
     <Mode>k__BackingField: 0
     <LoggerType>k__BackingField: 0
     <AnalyzerType>k__BackingField: 0
+  _currentJournal:
+    <SchemaVersion>k__BackingField: 0
+    <RunId>k__BackingField: 
+    <ScenarioId>k__BackingField: 
+    <Mode>k__BackingField: 0
+    stepIds: []
+    events: []
 --- !u!4 &995867761
 Transform:
   m_ObjectHideFlags: 0

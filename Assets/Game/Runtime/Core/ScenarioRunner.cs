@@ -17,7 +17,10 @@ public class ScenarioRunner : MonoBehaviour
     public event Action<ScenarioData, RunSettings> RunStarted;
     public event Action RunFinished;
     public event Action<AnalyzerType> AnalysisRequested;
-
+    
+    private IRunLogger logger;
+    [SerializeField] private RunJournal _currentJournal;
+    
     public void StartScenario()
     {
         if (IsRunning)
@@ -56,7 +59,6 @@ public class ScenarioRunner : MonoBehaviour
         }
 
         _runtimeSettings = _defaultSettings.CreateCopy();
-        
         CurrentRun = newRun;
         Debug.Log($"Запуск:{_scenarioData.ScenarioName}\n" +
                   $"Режим: {_runtimeSettings.Mode}\n" +
@@ -64,14 +66,37 @@ public class ScenarioRunner : MonoBehaviour
                   $"Анализатор: {_runtimeSettings.AnalyzerType}\n" +
                   $"{this}");
 
+        logger = CreateLogger(_runtimeSettings.LoggerType);
+        _currentJournal = new RunJournal(CurrentRun, _runtimeSettings);
+
+        RecordEvent(RunEventTypes.RunStarted, result: RunStatus.Running.ToString());
         RunStarted?.Invoke(_scenarioData, _runtimeSettings.CreateCopy());
     }
-
+   
+   private static IRunLogger CreateLogger(LoggerType loggerType)
+   {
+       switch (loggerType)
+       {
+           case LoggerType.Console:
+               return new ConsoleRunLogger();
+           case LoggerType.Json:
+               return new JsonRunLogger();
+           default:
+               throw new ArgumentOutOfRangeException(nameof(loggerType));
+       }
+   }
+    
     public void FinishScenario()
     {
-        if (!IsRunning) return;
+        if (!IsRunning)
+            return;
+
         CurrentRun.Finish();
+
+        RecordEvent(RunEventTypes.RunFinished, result: RunStatus.Finished.ToString());
+
         RunFinished?.Invoke();
+
         RequestAnalysis();
     }
 
@@ -94,5 +119,19 @@ public class ScenarioRunner : MonoBehaviour
             return;
         }
         AnalysisRequested?.Invoke(_runtimeSettings.AnalyzerType);
+    }
+    
+    private void RecordEvent(string type, string stepId = null, string result = null, int attemptNumber = 0, string reason = null)
+    {
+        RunEvent entry = _currentJournal.Append(type, stepId, result, attemptNumber, reason);
+
+        try
+        {
+            logger.Write(_currentJournal, entry);
+        }
+        catch (Exception exception)
+        {
+            Debug.LogError($"Не удалось вывести или сохранить событие: {exception.Message} {this}");
+        }
     }
 }
