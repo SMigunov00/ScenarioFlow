@@ -16,6 +16,7 @@ public sealed class StepState
     public int AttemptsCount { get; private set; }
     public int ViolationsCount { get; private set; }
     public int ConditionProgress { get; private set; }
+    public bool IsTerminal => Status == StepStatus.Completed || Status == StepStatus.Failed || Status == StepStatus.Skipped;
     
     public StepState(string stepId)
     {
@@ -27,6 +28,26 @@ public sealed class StepState
         AttemptsCount = 0;
         ViolationsCount = 0;
         ConditionProgress = 0;
+    }
+    
+    internal void Activate()
+    {
+        if (Status != StepStatus.Waiting)
+        {
+            throw new InvalidOperationException($"Нельзя активировать шаг {StepId}: {Status}");
+        }
+
+        Status = StepStatus.Active;
+    }
+    
+    internal void Complete()
+    {
+        if (Status != StepStatus.Active)
+        {
+            throw new InvalidOperationException($"Нельзя завершить шаг {StepId}: {Status}");
+        }
+
+        Status = StepStatus.Completed;
     }
     
     internal void SetConditionProgress(int value)

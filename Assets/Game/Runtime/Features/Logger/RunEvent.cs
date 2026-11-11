@@ -1,5 +1,4 @@
 using System;
-using UnityEngine;
 
 [Serializable]
 public sealed class RunEvent
@@ -26,5 +25,5 @@ public static class RunEventTypes
     public const string StepStatusChanged = "StepStatusChanged";
     public const string ActionReceived = "ActionReceived";
     public const string ConditionEvaluated = "ConditionEvaluated";
+    public const string ViolationDetected = "ViolationDetected";
 }
-

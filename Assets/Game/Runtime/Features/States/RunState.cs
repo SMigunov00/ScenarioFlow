@@ -46,6 +46,19 @@ public sealed class RunState
     }
 
     public bool TryGetStep(string stepId, out StepState stepState) => steps.TryGetValue(stepId, out stepState);
+    public bool AllStepsTerminal
+    {
+        get
+        {
+            foreach (StepState step in steps.Values)
+            {
+                if (!step.IsTerminal)
+                    return false;
+            }
+
+            return true;
+        }
+    }
     
     public void Finish() => Status = RunStatus.Finished;
     

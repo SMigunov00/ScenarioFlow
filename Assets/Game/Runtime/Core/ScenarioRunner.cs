@@ -12,29 +12,33 @@ public sealed class ScenarioRunner : MonoBehaviour
 
     public bool IsRunning => CurrentRun != null && CurrentRun.Status == RunStatus.Running;
     public bool HasRun => CurrentRun != null;
-    
+
     public AnalyzerType SelectedAnalyzer => _runtimeSettings != null ? _runtimeSettings.AnalyzerType : _defaultSettings.AnalyzerType;
 
     public event Action<ScenarioData, RunSettings> RunStarted;
     public event Action RunFinished;
     public event Action<AnalyzerType> AnalysisRequested;
-    
+
     private IRunLogger logger;
     [SerializeField] private RunJournal _currentJournal;
-    
+
     [SerializeField] private List<ScenarioActionSource> _actionSources = new();
     private readonly HashSet<ScenarioActionSource> _subscribedSources = new();
-    
+
     [SerializeField] private ScenarioContext _conditionContext;
-    private readonly ConditionEvaluator _conditionEvaluator = new ();
-    
-    
+    private readonly ConditionEvaluator _conditionEvaluator = new();
+
+    private ActivationScheduler _activationScheduler;
+    private readonly Queue<ScenarioAction> _pendingActions = new();
+
+    private bool isProcessingActions;
+
     private void OnEnable()
     {
         foreach (ScenarioActionSource source in _actionSources)
         {
             if (source == null || !_subscribedSources.Add(source)) continue;
-            
+
             source.ActionRaised += HandleAction;
         }
     }
@@ -49,7 +53,7 @@ public sealed class ScenarioRunner : MonoBehaviour
 
         _subscribedSources.Clear();
     }
-    
+
     public void StartScenario()
     {
         if (IsRunning)
@@ -57,29 +61,23 @@ public sealed class ScenarioRunner : MonoBehaviour
             Debug.LogWarning($"Сценарий уже запущен {this}");
             return;
         }
-
-        if (_scenarioData == null)
+        
+        if (_scenarioData == null || _scenarioData.Steps.Count == 0 || _defaultSettings == null)
         {
-            Debug.LogError($"Не назначен ScenarioData {this}");
+            Debug.LogError($"Не назначен сценарий, отсутствуют шаги или настройки запуска {this}");
             return;
         }
 
-        if (_scenarioData.Steps.Count == 0)
-        {
-            Debug.LogError($"У сценария отсутствуют шаги {this}");
-            return;
-        }
+        RunSettings newSettings = _defaultSettings.CreateCopy();
+        RunState runState;
+        ActivationScheduler activationScheduler;
+        IRunLogger newLogger;
 
-        if (_defaultSettings == null)
-        {
-            Debug.LogError($"Не заданы настройки запуска {this}");
-            return;
-        }
-
-        RunState newRun;
         try
         {
-            newRun = new RunState(_scenarioData);
+            runState = new RunState(_scenarioData);
+            activationScheduler = new ActivationScheduler(_scenarioData.GetActivationPlan(newSettings.Mode), runState);
+            newLogger = CreateLogger(newSettings.LoggerType);
         }
         catch (ArgumentException exception)
         {
@@ -87,39 +85,58 @@ public sealed class ScenarioRunner : MonoBehaviour
             return;
         }
 
-        _runtimeSettings = _defaultSettings.CreateCopy();
-        CurrentRun = newRun;
-        Debug.Log($"Запуск:{_scenarioData.ScenarioName}\n" +
-                  $"Режим: {_runtimeSettings.Mode}\n" +
-                  $"Логгер: {_runtimeSettings.LoggerType}\n" +
-                  $"Анализатор: {_runtimeSettings.AnalyzerType}\n" +
-                  $"{this}");
-
-        logger = CreateLogger(_runtimeSettings.LoggerType);
+        _pendingActions.Clear();
+        _runtimeSettings = newSettings;
+        CurrentRun = runState;
+        _activationScheduler = activationScheduler;
+        logger = newLogger;
+        
         _currentJournal = new RunJournal(CurrentRun, _runtimeSettings);
-
         RecordEvent(RunEventTypes.RunStarted, result: RunStatus.Running.ToString());
+        RefreshActivation();
         RunStarted?.Invoke(_scenarioData, _runtimeSettings.CreateCopy());
     }
-   
-   private static IRunLogger CreateLogger(LoggerType loggerType)
-   {
-       switch (loggerType)
-       {
-           case LoggerType.Console:
-               return new ConsoleRunLogger();
-           case LoggerType.Json:
-               return new JsonRunLogger();
-           default:
-               throw new ArgumentOutOfRangeException(nameof(loggerType));
-       }
-   }
-    
+
+    private static IRunLogger CreateLogger(LoggerType loggerType)
+    {
+        switch (loggerType)
+        {
+            case LoggerType.Console:
+                return new ConsoleRunLogger();
+            case LoggerType.Json:
+                return new JsonRunLogger();
+            default:
+                throw new ArgumentOutOfRangeException(nameof(loggerType));
+        }
+    }
+
+    private void RefreshActivation()
+    {
+        if (!IsRunning) return;
+
+        IReadOnlyList<StepState> stepsToActivate = _activationScheduler.GetStepsToActivate(CurrentRun);
+        foreach (StepState step in stepsToActivate)
+        {
+            step.Activate();
+            RecordEvent(RunEventTypes.StepActivated, stepId: step.StepId, result: StepStatus.Active.ToString());
+        }
+
+        if (CurrentRun.AllStepsTerminal)
+            FinishScenario();
+    }
+
     public void FinishScenario()
     {
         if (!IsRunning) return;
 
+        if (!CurrentRun.AllStepsTerminal)
+        {
+            Debug.LogWarning($"В сценарии остались незавершенные шаги {this}");
+            return;
+        }
+
         CurrentRun.Finish();
+        _pendingActions.Clear();
         RecordEvent(RunEventTypes.RunFinished, result: RunStatus.Finished.ToString());
         RunFinished?.Invoke();
         RequestAnalysis();
@@ -129,9 +146,10 @@ public sealed class ScenarioRunner : MonoBehaviour
     {
         if (!HasRun)
         {
-            Debug.LogWarning($"Сначала запустите сценарий {this}");
+            Debug.LogWarning($"Сначала необходимо запустить сценарий {this}");
             return;
         }
+
         _runtimeSettings.SetAnalyzer(analyzerType);
         RequestAnalysis();
     }
@@ -143,51 +161,107 @@ public sealed class ScenarioRunner : MonoBehaviour
             Debug.LogWarning($"Отсутствуют прохождения для анализа {this}");
             return;
         }
+
         AnalysisRequested?.Invoke(_runtimeSettings.AnalyzerType);
     }
-   
-   private void HandleAction(ScenarioAction action)
-   {
-       if (!IsRunning) return;
 
-       if (!CurrentRun.TryGetStep(action.StepId, out StepState stepState))
-       {
-           Debug.LogError($"Получен неизвестный шаг: {action.StepId} {this}");
+    private void HandleAction(ScenarioAction action)
+    {
+        if (!IsRunning || action == null) return;
 
-           return;
-       }
+        _pendingActions.Enqueue(action);
 
-       RecordEvent(new RunEvent
-       {
-           Type = RunEventTypes.ActionReceived,
-           StepId = action.StepId,
-           ActionId = action.ActionId,
-           SourceId = action.SourceId,
-           Result = "Received"
-       });
+        if (isProcessingActions) return;
 
-       StepData definition = FindStepDefinition(action.StepId);
+        isProcessingActions = true;
 
-       StepEvaluationResult evaluation = _conditionEvaluator.Evaluate(definition?.Condition, stepState.ConditionProgress, action, _conditionContext);
+        try
+        {
+            while (IsRunning && _pendingActions.Count > 0)
+                ProcessAction(_pendingActions.Dequeue());
+        }
+        finally
+        {
+            isProcessingActions = false;
+            if (!IsRunning)
+                _pendingActions.Clear();
+        }
+    }
 
-       if (evaluation.Outcome != ConditionOutcome.ConfigurationError)
-           stepState.SetConditionProgress(evaluation.NextActionIndex);
-       
-       RecordEvent(new RunEvent
-       {
-           Type = RunEventTypes.ConditionEvaluated,
-           StepId = action.StepId,
-           ActionId = action.ActionId,
-           SourceId = action.SourceId,
-           Result = evaluation.Outcome.ToString(),
-           Reason = evaluation.Reason
-       });
+    private void ProcessAction(ScenarioAction action)
+    {
+        if (!CurrentRun.TryGetStep(action.StepId, out StepState step))
+        {
+            Debug.LogError($"Неизвестный шаг: {action.StepId} {this}");
+            return;
+        }
 
-       if (evaluation.Outcome == ConditionOutcome.ConfigurationError)
-           Debug.LogError($"{evaluation.Reason} {this}");
+        if (step.IsTerminal) return;
 
-   }
-    
+        if (step.Status == StepStatus.Waiting && _runtimeSettings.OutOfOrderBehavior == OutOfOrderBehavior.IgnoreAction) return;
+
+        RecordEvent(new RunEvent
+        {
+            Type = RunEventTypes.ActionReceived,
+            StepId = action.StepId,
+            ActionId = action.ActionId,
+            SourceId = action.SourceId,
+            Result = "Received"
+        });
+
+        if (step.Status == StepStatus.Waiting)
+        {
+            ReportViolation(action, "Шаг ещё недоступен");
+            return;
+        }
+
+        StepData definition = FindStepDefinition(action.StepId);
+        StepEvaluationResult evaluation = _conditionEvaluator.Evaluate(definition?.Condition, step.ConditionProgress, action, _conditionContext);
+        
+        if (evaluation.Outcome != ConditionOutcome.ConfigurationError)
+            step.SetConditionProgress(evaluation.NextActionIndex);
+        
+        RecordEvent(new RunEvent
+        {
+            Type = RunEventTypes.ConditionEvaluated,
+            StepId = action.StepId,
+            ActionId = action.ActionId,
+            SourceId = action.SourceId,
+            Result = evaluation.Outcome.ToString(),
+            Reason = evaluation.Reason
+        });
+
+        switch (evaluation.Outcome)
+        {
+            case ConditionOutcome.Success:
+                step.Complete();
+                RecordEvent(RunEventTypes.StepStatusChanged, stepId: step.StepId, result: StepStatus.Completed.ToString());
+                RefreshActivation();
+                break;
+
+            case ConditionOutcome.Violation:
+                ReportViolation(action, evaluation.Reason);
+                break;
+
+            case ConditionOutcome.ConfigurationError:
+                Debug.LogError(evaluation.Reason, this);
+                break;
+        }
+    }
+
+    private void ReportViolation(ScenarioAction action, string reason)
+    {
+        RecordEvent(new RunEvent
+        {
+            Type = RunEventTypes.ViolationDetected,
+            StepId = action.StepId,
+            ActionId = action.ActionId,
+            SourceId = action.SourceId,
+            Result = "Violation",
+            Reason = reason
+        });
+    }
+
     private void RecordEvent(string type, string stepId = null, string result = null, int attemptNumber = 0, string reason = null)
     {
         RecordEvent(new RunEvent
@@ -213,7 +287,7 @@ public sealed class ScenarioRunner : MonoBehaviour
             Debug.LogError($"Не удалось вывести или сохранить событие: {exception.Message} {this}");
         }
     }
-    
+
     private StepData FindStepDefinition(string stepId)
     {
         foreach (StepData step in _scenarioData.Steps)
@@ -224,5 +298,4 @@ public sealed class ScenarioRunner : MonoBehaviour
 
         return null;
     }
-    
 }
