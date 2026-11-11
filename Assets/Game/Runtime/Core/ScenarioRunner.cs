@@ -31,7 +31,9 @@ public sealed class ScenarioRunner : MonoBehaviour
     private ActivationScheduler _activationScheduler;
     private readonly Queue<ScenarioAction> _pendingActions = new();
 
-    private bool isProcessingActions;
+    private bool _isProcessingActions;
+    
+    private IModePolicy _modePolicy;
 
     private void OnEnable()
     {
@@ -67,29 +69,30 @@ public sealed class ScenarioRunner : MonoBehaviour
             Debug.LogError($"Не назначен сценарий, отсутствуют шаги или настройки запуска {this}");
             return;
         }
-
         RunSettings newSettings = _defaultSettings.CreateCopy();
         RunState runState;
         ActivationScheduler activationScheduler;
         IRunLogger newLogger;
+        IModePolicy newModePolicy;
 
         try
         {
             runState = new RunState(_scenarioData);
             activationScheduler = new ActivationScheduler(_scenarioData.GetActivationPlan(newSettings.Mode), runState);
             newLogger = CreateLogger(newSettings.LoggerType);
+            newModePolicy = CreateModePolicy(newSettings.Mode, runState);
         }
         catch (ArgumentException exception)
         {
             Debug.LogError($"Не удалось запустить сценарий: {exception.Message} {this}");
             return;
         }
-
         _pendingActions.Clear();
         _runtimeSettings = newSettings;
         CurrentRun = runState;
         _activationScheduler = activationScheduler;
         logger = newLogger;
+        _modePolicy = newModePolicy;
         
         _currentJournal = new RunJournal(CurrentRun, _runtimeSettings);
         RecordEvent(RunEventTypes.RunStarted, result: RunStatus.Running.ToString());
@@ -113,8 +116,26 @@ public sealed class ScenarioRunner : MonoBehaviour
     private void RefreshActivation()
     {
         if (!IsRunning) return;
+        
+        while (true)
+        {
+            IReadOnlyList<string> stepsToSkip = _modePolicy.GetStepsToSkip(CurrentRun);
 
+            if (stepsToSkip.Count == 0) break;
+
+            foreach (string stepId in stepsToSkip)
+            {
+                StepState step = CurrentRun.Steps[stepId];
+                step.Skip();
+                RecordEvent(RunEventTypes.StepStatusChanged, 
+                    stepId: stepId, 
+                    result: StepStatus.Skipped.ToString(),
+                    reason: "Достигнут порог нарушений группы");
+            }
+        }
+        
         IReadOnlyList<StepState> stepsToActivate = _activationScheduler.GetStepsToActivate(CurrentRun);
+
         foreach (StepState step in stepsToActivate)
         {
             step.Activate();
@@ -171,9 +192,9 @@ public sealed class ScenarioRunner : MonoBehaviour
 
         _pendingActions.Enqueue(action);
 
-        if (isProcessingActions) return;
+        if (_isProcessingActions) return;
 
-        isProcessingActions = true;
+        _isProcessingActions = true;
 
         try
         {
@@ -182,7 +203,7 @@ public sealed class ScenarioRunner : MonoBehaviour
         }
         finally
         {
-            isProcessingActions = false;
+            _isProcessingActions = false;
             if (!IsRunning)
                 _pendingActions.Clear();
         }
@@ -234,13 +255,8 @@ public sealed class ScenarioRunner : MonoBehaviour
         switch (evaluation.Outcome)
         {
             case ConditionOutcome.Success:
-                step.Complete();
-                RecordEvent(RunEventTypes.StepStatusChanged, stepId: step.StepId, result: StepStatus.Completed.ToString());
-                RefreshActivation();
-                break;
-
             case ConditionOutcome.Violation:
-                ReportViolation(action, evaluation.Reason);
+                ResolveAttempt(action, step, evaluation.Outcome, evaluation.Reason);
                 break;
 
             case ConditionOutcome.ConfigurationError:
@@ -251,15 +267,9 @@ public sealed class ScenarioRunner : MonoBehaviour
 
     private void ReportViolation(ScenarioAction action, string reason)
     {
-        RecordEvent(new RunEvent
-        {
-            Type = RunEventTypes.ViolationDetected,
-            StepId = action.StepId,
-            ActionId = action.ActionId,
-            SourceId = action.SourceId,
-            Result = "Violation",
-            Reason = reason
-        });
+        if (!CurrentRun.TryGetStep(action.StepId, out StepState step)) return;
+
+        ResolveAttempt(action, step, ConditionOutcome.Violation, reason);
     }
 
     private void RecordEvent(string type, string stepId = null, string result = null, int attemptNumber = 0, string reason = null)
@@ -297,5 +307,36 @@ public sealed class ScenarioRunner : MonoBehaviour
         }
 
         return null;
+    }
+    
+    private IModePolicy CreateModePolicy(RunMode mode, RunState run)
+    {
+        switch (mode)
+        {
+            case RunMode.Training:
+                return new TrainingModePolicy();
+
+            case RunMode.Exam:
+                return new ExamModePolicy(
+                    _scenarioData.ExamGroups,
+                    _scenarioData.GetActivationPlan(mode),
+                    run);
+
+            default:
+                throw new ArgumentOutOfRangeException(nameof(mode));
+        }
+    }
+    
+    private void ResolveAttempt(ScenarioAction action, StepState step, ConditionOutcome outcome, string reason)
+    {
+        StepResolution resolution = _modePolicy.Resolve(step, outcome);
+        StepStatus previousStatus = step.Status;
+        step.ApplyAttempt(outcome, resolution);
+        RecordEvent(RunEventTypes.AttemptResolved, stepId: step.StepId, result: outcome.ToString(), attemptNumber: step.AttemptsCount, reason: reason);
+       
+        if (step.Status != previousStatus)
+            RecordEvent(RunEventTypes.StepStatusChanged, stepId: step.StepId, result: step.Status.ToString());
+        
+        RefreshActivation();
     }
 }

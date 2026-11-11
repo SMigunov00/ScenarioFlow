@@ -26,7 +26,7 @@ MonoBehaviour:
       \u043D\u0430\u0436\u0430\u0442\u0438\u044F \u043A\u043D\u043E\u043F\u043A\u0438"
     <Condition>k__BackingField:
       ActionSequence:
-      - TestButtonAction
+      - ButtonAction
       UnexpectedActionIsViolation: 1
       RequireState: 0
       RequiredStateId: 
@@ -100,27 +100,27 @@ MonoBehaviour:
     <StepIds>k__BackingField:
     - TestButton
     - TestTrigger
-  - <Name>k__BackingField: Package2
-    <StepIds>k__BackingField:
     - TestCollision
     - TestUnityEvent
-  - <Name>k__BackingField: Package3
+  - <Name>k__BackingField: Package2
     <StepIds>k__BackingField:
     - TestTriggerSequence
+  - <Name>k__BackingField: Package3
+    <StepIds>k__BackingField:
     - StepState
   <ExamGroups>k__BackingField:
   - <Name>k__BackingField: Group1
     <StepIds>k__BackingField:
     - TestButton
     - TestTrigger
-    <ViolationLimit>k__BackingField: 2
-  - <Name>k__BackingField: Group2
-    <StepIds>k__BackingField:
     - TestCollision
     - TestUnityEvent
     <ViolationLimit>k__BackingField: 2
-  - <Name>k__BackingField: Group3
+  - <Name>k__BackingField: Group2
     <StepIds>k__BackingField:
     - TestTriggerSequence
+    <ViolationLimit>k__BackingField: 2
+  - <Name>k__BackingField: Group3
+    <StepIds>k__BackingField:
     - StepState
     <ViolationLimit>k__BackingField: 2

@@ -40,14 +40,51 @@ public sealed class StepState
         Status = StepStatus.Active;
     }
     
-    internal void Complete()
+    internal void ApplyAttempt(
+        ConditionOutcome outcome,
+        StepResolution resolution)
     {
-        if (Status != StepStatus.Active)
+        if (outcome != ConditionOutcome.Success &&
+            outcome != ConditionOutcome.Violation)
         {
-            throw new InvalidOperationException($"Нельзя завершить шаг {StepId}: {Status}");
+            throw new ArgumentException(
+                "Результат не завершает попытку.",
+                nameof(outcome));
         }
 
-        Status = StepStatus.Completed;
+        if (IsTerminal)
+        {
+            throw new InvalidOperationException(
+                $"Шаг {StepId} уже завершён.");
+        }
+
+        if (outcome == ConditionOutcome.Success &&
+            Status != StepStatus.Active)
+        {
+            throw new InvalidOperationException(
+                $"Неактивный шаг {StepId} нельзя выполнить.");
+        }
+
+        AttemptsCount++;
+
+        if (outcome == ConditionOutcome.Violation)
+            ViolationsCount++;
+
+        Status = resolution.Status;
+
+        if (resolution.ResetProgress)
+            ConditionProgress = 0;
+    }
+
+    internal void Skip()
+    {
+        if (IsTerminal)
+        {
+            throw new InvalidOperationException(
+                $"Шаг {StepId} уже завершён.");
+        }
+
+        Status = StepStatus.Skipped;
     }
     
     internal void SetConditionProgress(int value)
