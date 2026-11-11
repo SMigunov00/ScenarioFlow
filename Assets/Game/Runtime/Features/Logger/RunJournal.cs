@@ -18,28 +18,25 @@ public sealed class RunJournal
     public IReadOnlyList<string> StepIds => stepIds;
     public IReadOnlyList<RunEvent> Events => events;
 
-    public RunJournal(RunState run, RunSettings settings)
+    public RunJournal(RunState state, RunSettings settings)
     {
-        RunId = run.RunId;
-        ScenarioId = run.ScenarioId;
+        RunId = state.RunId;
+        ScenarioId = state.ScenarioId;
         Mode = settings.Mode;
-        stepIds.AddRange(run.Steps.Keys);
+        stepIds.AddRange(state.Steps.Keys);
     }
 
-    public RunEvent Append(string type, string stepId = null, string result = null, int attemptNumber = 0, string reason = null)
+    public RunEvent Append(RunEvent runEvent)
     {
-        var runEvent = new RunEvent
-        {
-            Sequence = events.Count + 1,
-            Time = DateTime.UtcNow.ToString("O"),
-            RunId = RunId,
-            StepId = stepId,
-            Type = type,
-            Result = result,
-            AttemptNumber = attemptNumber,
-            Reason = reason
-        };
+        if (runEvent == null)
+            throw new ArgumentNullException(nameof(runEvent));
+
+        runEvent.Sequence = events.Count + 1;
+        runEvent.Time = DateTime.UtcNow.ToString("O");
+        runEvent.RunId = RunId;
+
         events.Add(runEvent);
+
         return runEvent;
     }
 }

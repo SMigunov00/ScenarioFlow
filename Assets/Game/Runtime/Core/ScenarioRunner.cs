@@ -1,10 +1,11 @@
 using System;
 using UnityEngine;
+using System.Collections.Generic;
 
-public class ScenarioRunner : MonoBehaviour
+public sealed class ScenarioRunner : MonoBehaviour
 {
     [SerializeField] private ScenarioData _scenarioData;
-    [SerializeField] private RunSettings _defaultSettings = new RunSettings();
+    [SerializeField] private RunSettings _defaultSettings = new();
 
     private RunSettings _runtimeSettings;
     public RunState CurrentRun { get; private set; }
@@ -20,6 +21,31 @@ public class ScenarioRunner : MonoBehaviour
     
     private IRunLogger logger;
     [SerializeField] private RunJournal _currentJournal;
+    
+    [SerializeField] private List<ScenarioActionSource> _actionSources = new();
+    private readonly HashSet<ScenarioActionSource> _subscribedSources = new();
+    
+    
+    private void OnEnable()
+    {
+        foreach (ScenarioActionSource source in _actionSources)
+        {
+            if (source == null || !_subscribedSources.Add(source)) continue;
+            
+            source.ActionRaised += HandleAction;
+        }
+    }
+
+    private void OnDisable()
+    {
+        foreach (ScenarioActionSource source in _subscribedSources)
+        {
+            if (source != null)
+                source.ActionRaised -= HandleAction;
+        }
+
+        _subscribedSources.Clear();
+    }
     
     public void StartScenario()
     {
@@ -88,15 +114,11 @@ public class ScenarioRunner : MonoBehaviour
     
     public void FinishScenario()
     {
-        if (!IsRunning)
-            return;
+        if (!IsRunning) return;
 
         CurrentRun.Finish();
-
         RecordEvent(RunEventTypes.RunFinished, result: RunStatus.Finished.ToString());
-
         RunFinished?.Invoke();
-
         RequestAnalysis();
     }
 
@@ -115,19 +137,53 @@ public class ScenarioRunner : MonoBehaviour
     {
         if (!HasRun)
         {
-            Debug.LogWarning($"Отсутсвуют прохождения для анализа {this}");
+            Debug.LogWarning($"Отсутствуют прохождения для анализа {this}");
             return;
         }
         AnalysisRequested?.Invoke(_runtimeSettings.AnalyzerType);
     }
     
+    private void HandleAction(ScenarioAction action)
+    {
+        if (!IsRunning) return;
+
+        if (!CurrentRun.TryGetStep(action.StepId, out _))
+        {
+            Debug.LogError($"Источник {action.SourceId} отправил действие для неизвестного шага {action.StepId} {this}");
+            return;
+        }
+
+        RecordEvent(new RunEvent
+        {
+            Type = RunEventTypes.ActionReceived,
+
+            StepId = action.StepId,
+            ActionId = action.ActionId,
+            SourceId = action.SourceId,
+
+            Result = "Received"
+        });
+    }
+    
     private void RecordEvent(string type, string stepId = null, string result = null, int attemptNumber = 0, string reason = null)
     {
-        RunEvent entry = _currentJournal.Append(type, stepId, result, attemptNumber, reason);
+        RecordEvent(new RunEvent
+        {
+            Type = type,
+            StepId = stepId,
+            Result = result,
+            AttemptNumber = attemptNumber,
+            Reason = reason
+        });
+    }
+
+    private void RecordEvent(RunEvent runEvent)
+    {
+        _currentJournal.Append(runEvent);
 
         try
         {
-            logger.Write(_currentJournal, entry);
+            logger.Write(_currentJournal, runEvent);
         }
         catch (Exception exception)
         {

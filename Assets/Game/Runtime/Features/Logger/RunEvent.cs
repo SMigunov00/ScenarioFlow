@@ -12,6 +12,8 @@ public sealed class RunEvent
     public string Result;
     public int AttemptNumber;
     public string Reason;
+    public string ActionId;
+    public string SourceId;
 }
 
 public static class RunEventTypes
@@ -22,5 +24,6 @@ public static class RunEventTypes
     public const string StepProgressed = "StepProgressed";
     public const string AttemptResolved = "AttemptResolved";
     public const string StepStatusChanged = "StepStatusChanged";
+    public const string ActionReceived = "ActionReceived";
 }
 
