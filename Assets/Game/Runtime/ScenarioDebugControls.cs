@@ -2,6 +2,8 @@ using UnityEngine;
 public sealed class ScenarioDebugControls : MonoBehaviour
 {
     [SerializeField] private ScenarioRunner _runner;
+    [SerializeField] private ScenarioAnalysisController _analysisController;
+    [SerializeField] private string _journalFilePath;
 
     private void OnEnable()
     {
@@ -74,6 +76,33 @@ public sealed class ScenarioDebugControls : MonoBehaviour
     {
         if (CanExecute())
             _runner.FinishScenario();
+    }
+    
+    [ContextMenu("Тест/6. Пересчитать текущий журнал")]
+    public void RecalculateCurrentRun()
+    {
+        if (CanExecute())
+            _runner.RequestAnalysis();
+    }
+    
+    [ContextMenu("Тест/7. Загрузить журнал и оценить")]
+    public void AnalyzeSavedJournal()
+    {
+        if (!CanExecute()) return;
+
+        if (_analysisController == null)
+        {
+            Debug.LogError($"Не назначен ScenarioAnalysisController {this}");
+            return;
+        }
+
+        if (!JsonRunLogger.TryLoad(_journalFilePath, out RunJournal loadedJournal, out string error))
+        {
+            Debug.LogWarning($"{error} {this}");
+            return;
+        }
+
+        _analysisController.AnalyzeJournal(loadedJournal, AnalyzerType.ExamScore);
     }
 
     private bool CanExecute()

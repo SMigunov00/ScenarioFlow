@@ -20,7 +20,7 @@ public sealed class ScenarioRunner : MonoBehaviour
     public event Action<AnalyzerType> AnalysisRequested;
 
     private IRunLogger logger;
-    [SerializeField] private RunJournal _currentJournal;
+    [field: SerializeField] public RunJournal CurrentJournal { get; private set; }
 
     [SerializeField] private List<ScenarioActionSource> _actionSources = new();
     private readonly HashSet<ScenarioActionSource> _subscribedSources = new();
@@ -94,7 +94,7 @@ public sealed class ScenarioRunner : MonoBehaviour
         logger = newLogger;
         _modePolicy = newModePolicy;
         
-        _currentJournal = new RunJournal(CurrentRun, _runtimeSettings);
+        CurrentJournal = new RunJournal(CurrentRun, _runtimeSettings);
         RecordEvent(RunEventTypes.RunStarted, result: RunStatus.Running.ToString());
         RefreshActivation();
         RunStarted?.Invoke(_scenarioData, _runtimeSettings.CreateCopy());
@@ -286,11 +286,11 @@ public sealed class ScenarioRunner : MonoBehaviour
 
     private void RecordEvent(RunEvent runEvent)
     {
-        _currentJournal.Append(runEvent);
+        CurrentJournal.Append(runEvent);
 
         try
         {
-            logger.Write(_currentJournal, runEvent);
+            logger.Write(CurrentJournal, runEvent);
         }
         catch (Exception exception)
         {

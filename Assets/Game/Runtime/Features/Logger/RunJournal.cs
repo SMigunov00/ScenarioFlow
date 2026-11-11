@@ -39,4 +39,10 @@ public sealed class RunJournal
 
         return runEvent;
     }
+    
+    public RunJournal CreateJournal()
+    {
+        string json = JsonUtility.ToJson(this);
+        return JsonUtility.FromJson<RunJournal>(json);
+    }
 }
