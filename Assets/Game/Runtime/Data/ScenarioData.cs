@@ -35,6 +35,7 @@ public sealed class StepData
             SerializeField] public string Id { get; private set; }
     [field: SerializeField] public string Title { get; private set; }
     [field: SerializeField, TextArea] public string Instruction { get; private set; }
+    [field: SerializeField] public StepConditionData Condition { get; private set; } = new();
 }
 
 [Serializable]

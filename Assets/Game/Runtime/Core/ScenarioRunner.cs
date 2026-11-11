@@ -25,6 +25,9 @@ public sealed class ScenarioRunner : MonoBehaviour
     [SerializeField] private List<ScenarioActionSource> _actionSources = new();
     private readonly HashSet<ScenarioActionSource> _subscribedSources = new();
     
+    [SerializeField] private ScenarioContext _conditionContext;
+    private readonly ConditionEvaluator _conditionEvaluator = new ();
+    
     
     private void OnEnable()
     {
@@ -142,28 +145,48 @@ public sealed class ScenarioRunner : MonoBehaviour
         }
         AnalysisRequested?.Invoke(_runtimeSettings.AnalyzerType);
     }
-    
-    private void HandleAction(ScenarioAction action)
-    {
-        if (!IsRunning) return;
+   
+   private void HandleAction(ScenarioAction action)
+   {
+       if (!IsRunning) return;
 
-        if (!CurrentRun.TryGetStep(action.StepId, out _))
-        {
-            Debug.LogError($"Источник {action.SourceId} отправил действие для неизвестного шага {action.StepId} {this}");
-            return;
-        }
+       if (!CurrentRun.TryGetStep(action.StepId, out StepState stepState))
+       {
+           Debug.LogError($"Получен неизвестный шаг: {action.StepId} {this}");
 
-        RecordEvent(new RunEvent
-        {
-            Type = RunEventTypes.ActionReceived,
+           return;
+       }
 
-            StepId = action.StepId,
-            ActionId = action.ActionId,
-            SourceId = action.SourceId,
+       RecordEvent(new RunEvent
+       {
+           Type = RunEventTypes.ActionReceived,
+           StepId = action.StepId,
+           ActionId = action.ActionId,
+           SourceId = action.SourceId,
+           Result = "Received"
+       });
 
-            Result = "Received"
-        });
-    }
+       StepData definition = FindStepDefinition(action.StepId);
+
+       StepEvaluationResult evaluation = _conditionEvaluator.Evaluate(definition?.Condition, stepState.ConditionProgress, action, _conditionContext);
+
+       if (evaluation.Outcome != ConditionOutcome.ConfigurationError)
+           stepState.SetConditionProgress(evaluation.NextActionIndex);
+       
+       RecordEvent(new RunEvent
+       {
+           Type = RunEventTypes.ConditionEvaluated,
+           StepId = action.StepId,
+           ActionId = action.ActionId,
+           SourceId = action.SourceId,
+           Result = evaluation.Outcome.ToString(),
+           Reason = evaluation.Reason
+       });
+
+       if (evaluation.Outcome == ConditionOutcome.ConfigurationError)
+           Debug.LogError($"{evaluation.Reason} {this}");
+
+   }
     
     private void RecordEvent(string type, string stepId = null, string result = null, int attemptNumber = 0, string reason = null)
     {
@@ -190,4 +213,16 @@ public sealed class ScenarioRunner : MonoBehaviour
             Debug.LogError($"Не удалось вывести или сохранить событие: {exception.Message} {this}");
         }
     }
+    
+    private StepData FindStepDefinition(string stepId)
+    {
+        foreach (StepData step in _scenarioData.Steps)
+        {
+            if (step != null && step.Id == stepId)
+                return step;
+        }
+
+        return null;
+    }
+    
 }

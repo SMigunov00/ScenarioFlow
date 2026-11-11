@@ -15,7 +15,8 @@ public sealed class StepState
     public StepStatus Status { get; private set; }
     public int AttemptsCount { get; private set; }
     public int ViolationsCount { get; private set; }
-
+    public int ConditionProgress { get; private set; }
+    
     public StepState(string stepId)
     {
         if (string.IsNullOrWhiteSpace(stepId))
@@ -25,5 +26,14 @@ public sealed class StepState
         Status = StepStatus.Waiting;
         AttemptsCount = 0;
         ViolationsCount = 0;
+        ConditionProgress = 0;
+    }
+    
+    internal void SetConditionProgress(int value)
+    {
+        if (value < 0)
+            throw new ArgumentOutOfRangeException(nameof(value));
+
+        ConditionProgress = value;
     }
 }

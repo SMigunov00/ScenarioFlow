@@ -12,79 +12,118 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b6a984ddb9c843e48b7a0140d494ef6c, type: 3}
   m_Name: ScenarioData
   m_EditorClassIdentifier: 
-  <ScenarioId>k__BackingField: TestId
-  <ScenarioName>k__BackingField: Test
-  <Description>k__BackingField: "\u0422\u0435\u0441\u0442\u043E\u0432\u044B\u0439
-    \u0441\u0446\u0435\u043D\u0430\u0440\u0438\u0439 "
+  <ScenarioId>k__BackingField: conditions-demo-2
+  <ScenarioName>k__BackingField: "\u041F\u0440\u043E\u0432\u0435\u0440\u043A\u0430
+    \u0443\u0441\u043B\u043E\u0432\u0438\u0439 \u0441\u0446\u0435\u043D\u0430\u0440\u0438\u044F"
+  <Description>k__BackingField: "\u0428\u0435\u0441\u0442\u044C \u0448\u0430\u0433\u043E\u0432:
+    Button, Trigger, Collision, UnityEvent, \u043F\u043E\u0441\u043B\u0435\u0434\u043E\u0432\u0430\u0442\u0435\u043B\u044C\u043D\u043E\u0441\u0442\u044C
+    A \u2192 B \u0438 \u0434\u0435\u0439\u0441\u0442\u0432\u0438\u0435 \u043F\u0440\u0438
+    \u0432\u043A\u043B\u044E\u0447\u0451\u043D\u043D\u043E\u043C \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u0435.
+    \u0414\u043B\u044F \u0448\u0430\u0433\u0430 \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u0430
+    \u043F\u0435\u0440\u0435\u043A\u043B\u044E\u0447\u0430\u0439\u0442\u0435 Value
+    \u043E\u0431\u044A\u0435\u043A\u0442\u0430 MachineState \u0432 Play Mode."
   <Steps>k__BackingField:
-  - <Id>k__BackingField: TestStep1
-    <Title>k__BackingField: TestStep1
-    <Instruction>k__BackingField: "\u0422\u0435\u0441\u0442\u043E\u0432\u0430\u044F
-      \u0438\u043D\u0441\u0442\u0440\u0443\u043A\u0446\u0438\u044F 1"
-  - <Id>k__BackingField: TestStep2
-    <Title>k__BackingField: TestStep2
-    <Instruction>k__BackingField: "\u0422\u0435\u0441\u0442\u043E\u0432\u0430\u044F
-      \u0438\u043D\u0441\u0442\u0440\u0443\u043A\u0446\u0438\u044F 2"
-  - <Id>k__BackingField: TestStep3
-    <Title>k__BackingField: TestStep3
-    <Instruction>k__BackingField: "\u0422\u0435\u0441\u0442\u043E\u0432\u0430\u044F
-      \u0438\u043D\u0441\u0442\u0440\u0443\u043A\u0446\u0438\u044F 3"
-  - <Id>k__BackingField: TestStep4
-    <Title>k__BackingField: TestStep4
-    <Instruction>k__BackingField: "\u0422\u0435\u0441\u0442\u043E\u0432\u0430\u044F
-      \u0438\u043D\u0441\u0442\u0440\u0443\u043A\u0446\u0438\u044F 4"
-  - <Id>k__BackingField: TestStep5
-    <Title>k__BackingField: TestStep5
-    <Instruction>k__BackingField: "\u0422\u0435\u0441\u0442\u043E\u0432\u0430\u044F
-      \u0438\u043D\u0441\u0442\u0440\u0443\u043A\u0446\u0438\u044F 5"
-  - <Id>k__BackingField: TestStep6
-    <Title>k__BackingField: TestStep6
-    <Instruction>k__BackingField: "\u0422\u0435\u0441\u0442\u043E\u0432\u0430\u044F
-      \u0438\u043D\u0441\u0442\u0440\u0443\u043A\u0446\u0438\u044F 6"
   - <Id>k__BackingField: TestButton
-    <Title>k__BackingField: TestStepButton
-    <Instruction>k__BackingField: "\u0422\u0435\u0441\u0442\u043E\u0432\u0430\u044F
-      \u0438\u043D\u0441\u0442\u0440\u0443\u043A\u0446\u0438\u044F \u0434\u043B\u044F
-      \u043A\u043D\u043E\u043F\u043A\u0438"
+    <Title>k__BackingField: TestButtlonAction
+    <Instruction>k__BackingField: "\u041F\u0440\u043E\u0432\u0435\u0440\u043A\u0430
+      \u043D\u0430\u0436\u0430\u0442\u0438\u044F \u043A\u043D\u043E\u043F\u043A\u0438"
+    <Condition>k__BackingField:
+      ActionSequence:
+      - TestButtonAction
+      UnexpectedActionIsViolation: 1
+      RequireState: 0
+      RequiredStateId: 
+      RequiredStateValue: 1
   - <Id>k__BackingField: TestTrigger
-    <Title>k__BackingField: TestStepTrigger
-    <Instruction>k__BackingField: "\u0422\u0435\u0441\u0442\u043E\u0432\u0430\u044F
-      \u0438\u043D\u0441\u0442\u0440\u0443\u043A\u0446\u0438\u044F \u0434\u043B\u044F
+    <Title>k__BackingField: TestTriggerAction
+    <Instruction>k__BackingField: "\u041F\u0440\u043E\u0432\u0435\u0440\u043A\u0430
       \u0442\u0440\u0438\u0433\u0433\u0435\u0440\u0430"
+    <Condition>k__BackingField:
+      ActionSequence:
+      - TestActionTrigger
+      UnexpectedActionIsViolation: 1
+      RequireState: 0
+      RequiredStateId: 
+      RequiredStateValue: 1
   - <Id>k__BackingField: TestCollision
-    <Title>k__BackingField: TestStepCollision
-    <Instruction>k__BackingField: "\u0422\u0435\u0441\u0442\u043E\u0432\u0430\u044F
-      \u0438\u043D\u0441\u0442\u0440\u0443\u043A\u0446\u0438\u044F \u0434\u043B\u044F
+    <Title>k__BackingField: TestCollisionAction
+    <Instruction>k__BackingField: "\u041F\u0440\u043E\u0432\u0435\u0440\u043A\u0430
       \u043A\u043E\u043B\u043B\u0438\u0437\u0438\u0438"
+    <Condition>k__BackingField:
+      ActionSequence:
+      - TestActionCollision
+      UnexpectedActionIsViolation: 1
+      RequireState: 0
+      RequiredStateId: 
+      RequiredStateValue: 1
   - <Id>k__BackingField: TestUnityEvent
-    <Title>k__BackingField: TestStepEvent
-    <Instruction>k__BackingField: "\u0422\u0435\u0441\u0442\u043E\u0432\u0430\u044F
-      \u0438\u043D\u0441\u0442\u0440\u0443\u043A\u0446\u0438\u044F \u0434\u043B\u044F
+    <Title>k__BackingField: TestEvent
+    <Instruction>k__BackingField: "\u041F\u0440\u043E\u0432\u0435\u0440\u043A\u0430
       \u0438\u0432\u0435\u043D\u0442\u0430"
+    <Condition>k__BackingField:
+      ActionSequence:
+      - TestEventAction
+      UnexpectedActionIsViolation: 1
+      RequireState: 0
+      RequiredStateId: 
+      RequiredStateValue: 1
+  - <Id>k__BackingField: TestTriggerSequence
+    <Title>k__BackingField: TestABZone
+    <Instruction>k__BackingField: 1 TestTriggerZoneA 2 TestTriggerZoneB
+    <Condition>k__BackingField:
+      ActionSequence:
+      - TestEnterZoneA
+      - TestEnterZoneB
+      UnexpectedActionIsViolation: 1
+      RequireState: 0
+      RequiredStateId: 
+      RequiredStateValue: 1
+  - <Id>k__BackingField: StepState
+    <Title>k__BackingField: TestMachineState
+    <Instruction>k__BackingField: "\u041F\u0440\u043E\u0432\u0435\u0440\u043A\u0430
+      MachineState.Value"
+    <Condition>k__BackingField:
+      ActionSequence:
+      - PressMachineButton
+      UnexpectedActionIsViolation: 1
+      RequireState: 1
+      RequiredStateId: MachineEnabled
+      RequiredStateValue: 1
   <TrainingPlan>k__BackingField:
-  - <Name>k__BackingField: TrainingTest1
+  - <Name>k__BackingField: AllSteps
     <StepIds>k__BackingField:
-    - TestStep1
-    - TestStep2
-    - TestStep3
-  - <Name>k__BackingField: TrainingTest2
-    <StepIds>k__BackingField:
-    - TestStep2
-    - TestStep5
-    - TestStep6
+    - TestButton
+    - TestTrigger
+    - TestCollision
+    - TestUnityEvent
+    - TestTriggerSequence
+    - StepState
   <ExamPlan>k__BackingField:
-  - <Name>k__BackingField: ExamTest1
+  - <Name>k__BackingField: Package1
     <StepIds>k__BackingField:
-    - TestStep1
-    - TestStep2
-    - TestStep3
-    - TestStep4
-    - TestStep5
-    - TestStep6
+    - TestButton
+    - TestTrigger
+  - <Name>k__BackingField: Package2
+    <StepIds>k__BackingField:
+    - TestCollision
+    - TestUnityEvent
+  - <Name>k__BackingField: Package3
+    <StepIds>k__BackingField:
+    - TestTriggerSequence
+    - StepState
   <ExamGroups>k__BackingField:
-  - <Name>k__BackingField: ExamTestGroup1
+  - <Name>k__BackingField: Group1
     <StepIds>k__BackingField:
-    - TestStep1
-    - TestStep2
-    - TestStep3
-    <ViolationLimit>k__BackingField: 1
+    - TestButton
+    - TestTrigger
+    <ViolationLimit>k__BackingField: 2
+  - <Name>k__BackingField: Group2
+    <StepIds>k__BackingField:
+    - TestCollision
+    - TestUnityEvent
+    <ViolationLimit>k__BackingField: 2
+  - <Name>k__BackingField: Group3
+    <StepIds>k__BackingField:
+    - TestTriggerSequence
+    - StepState
+    <ViolationLimit>k__BackingField: 2
