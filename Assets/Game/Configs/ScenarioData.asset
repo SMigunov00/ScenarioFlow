@@ -12,73 +12,82 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b6a984ddb9c843e48b7a0140d494ef6c, type: 3}
   m_Name: ScenarioData
   m_EditorClassIdentifier: 
-  <ScenarioId>k__BackingField: TestScenarioData
-  <ScenarioName>k__BackingField: "\u0422\u0435\u0441\u0442\u043E\u0432\u044B\u0439
-    \u0441\u0446\u0435\u043D\u0430\u0440\u0438\u0439"
-  <Description>k__BackingField: "\u0428\u0435\u0441\u0442\u044C \u0448\u0430\u0433\u043E\u0432:
-    Button, Trigger, Collision, UnityEvent, \u043F\u043E\u0441\u043B\u0435\u0434\u043E\u0432\u0430\u0442\u0435\u043B\u044C\u043D\u043E\u0441\u0442\u044C
-    A \u2192 B \u0438 \u0434\u0435\u0439\u0441\u0442\u0432\u0438\u0435 \u043F\u0440\u0438
-    \u0432\u043A\u043B\u044E\u0447\u0451\u043D\u043D\u043E\u043C \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u0435"
+  <ScenarioId>k__BackingField: ScenarioFlow
+  <ScenarioName>k__BackingField: "\u0423\u0447\u0435\u0431\u043D\u044B\u0439 \u0441\u0446\u0435\u043D\u0430\u0440\u0438\u0439"
+  <Description>k__BackingField: "\u0423\u0447\u0435\u0431\u043D\u044B\u0439 \u0441\u0446\u0435\u043D\u0430\u0440\u0438\u0439
+    \u0441 \u0442\u0440\u0435\u043D\u0438\u0440\u043E\u0432\u043A\u043E\u0439 \u0438
+    \u044D\u043A\u0437\u0430\u043C\u0435\u043D\u043E\u043C"
   <Steps>k__BackingField:
-  - <Id>k__BackingField: TestButton
-    <Title>k__BackingField: TestButtlonAction
-    <Instruction>k__BackingField: "\u041F\u0440\u043E\u0432\u0435\u0440\u043A\u0430
-      \u043D\u0430\u0436\u0430\u0442\u0438\u044F \u043A\u043D\u043E\u043F\u043A\u0438"
+  - <Id>k__BackingField: StepStartButton
+    <Title>k__BackingField: "\u041D\u0430\u0436\u0430\u0442\u044C \u043A\u043D\u043E\u043F\u043A\u0443
+      \u0437\u0430\u043F\u0443\u0441\u043A\u0430"
+    <Instruction>k__BackingField: "\u041D\u0430\u0436\u0430\u0442\u0438\u0435 \u043A\u043D\u043E\u043F\u043A\u0438
+      \u0437\u0430\u043F\u0443\u0441\u043A\u0430"
     <Condition>k__BackingField:
       ActionSequence:
-      - ButtonAction
+      - StartButtonAction
       UnexpectedActionIsViolation: 1
       RequireState: 0
       RequiredStateId: 
       RequiredStateValue: 1
-  - <Id>k__BackingField: TestTrigger
-    <Title>k__BackingField: TestTriggerAction
-    <Instruction>k__BackingField: "\u041F\u0440\u043E\u0432\u0435\u0440\u043A\u0430
-      \u0442\u0440\u0438\u0433\u0433\u0435\u0440\u0430"
+  - <Id>k__BackingField: StepWorkAreaTrigger
+    <Title>k__BackingField: "\u0412\u043E\u0439\u0442\u0438 \u0432 \u0440\u0430\u0431\u043E\u0447\u0443\u044E
+      \u0437\u043E\u043D\u0443"
+    <Instruction>k__BackingField: "\u0412\u0445\u043E\u0434 \u0432 \u0440\u0430\u0431\u043E\u0447\u0443\u044E
+      \u0437\u043E\u043D\u0443"
     <Condition>k__BackingField:
       ActionSequence:
-      - TestActionTrigger
+      - WorkAreaAction
       UnexpectedActionIsViolation: 1
       RequireState: 0
       RequiredStateId: 
       RequiredStateValue: 1
-  - <Id>k__BackingField: TestCollision
-    <Title>k__BackingField: TestCollisionAction
-    <Instruction>k__BackingField: "\u041F\u0440\u043E\u0432\u0435\u0440\u043A\u0430
-      \u043A\u043E\u043B\u043B\u0438\u0437\u0438\u0438"
+  - <Id>k__BackingField: ControlSurfaceTouch
+    <Title>k__BackingField: "\u041A\u043E\u0441\u043D\u0443\u0442\u044C\u0441\u044F
+      \u043A\u043E\u043D\u0442\u0440\u043E\u043B\u044C\u043D\u043E\u0439 \u0442\u043E\u0447\u043A\u0438 "
+    <Instruction>k__BackingField: "\u041F\u0440\u0438\u043A\u043E\u0441\u043D\u043E\u0432\u0435\u043D\u0438\u0435
+      \u0441 \u043A\u043E\u043D\u0442\u0440\u043E\u043B\u044C\u043D\u043E\u0439 \u043F\u043E\u0432\u0435\u0440\u0445\u043D\u043E\u0441\u0442\u044C\u044E"
     <Condition>k__BackingField:
       ActionSequence:
-      - TestActionCollision
+      - ControlSurfaceAction
       UnexpectedActionIsViolation: 1
       RequireState: 0
       RequiredStateId: 
       RequiredStateValue: 1
-  - <Id>k__BackingField: TestUnityEvent
-    <Title>k__BackingField: TestEvent
-    <Instruction>k__BackingField: "\u041F\u0440\u043E\u0432\u0435\u0440\u043A\u0430
-      \u0438\u0432\u0435\u043D\u0442\u0430"
+  - <Id>k__BackingField: ConfirmReady
+    <Title>k__BackingField: "\u041F\u043E\u0434\u0442\u0432\u0435\u0440\u0434\u0438\u0442\u044C
+      \u0433\u043E\u0442\u043E\u0432\u043D\u043E\u0441\u0442\u044C"
+    <Instruction>k__BackingField: "\u041F\u043E\u0434\u0442\u0432\u0435\u0440\u0436\u0435\u043D\u0438\u0435
+      \u0433\u043E\u0442\u043E\u0432\u043D\u043E\u0441\u0442\u0438 "
     <Condition>k__BackingField:
       ActionSequence:
-      - TestEventAction
+      - ConfirmReadyAction
       UnexpectedActionIsViolation: 1
       RequireState: 0
       RequiredStateId: 
       RequiredStateValue: 1
-  - <Id>k__BackingField: TestTriggerSequence
-    <Title>k__BackingField: TestABZone
-    <Instruction>k__BackingField: 1 TestTriggerZoneA 2 TestTriggerZoneB
+  - <Id>k__BackingField: TriggerSequenceAB
+    <Title>k__BackingField: "\u041F\u0440\u043E\u0439\u0442\u0438 \u0437\u043E\u043D\u044B
+      AB"
+    <Instruction>k__BackingField: "\u0421\u043D\u0430\u0447\u0430\u043D\u0430 \u0432\u043E\u0439\u0442\u0438
+      \u0432 \u0437\u043E\u043D\u0443 A, \u0437\u0430\u0442\u0435\u043C \u0432 \u0437\u043E\u043D\u0443
+      B. \u0412\u0445\u043E\u0434 \u0432 B \u0440\u0430\u043D\u044C\u0448\u0435 A
+      \u0441\u0447\u0438\u0442\u0430\u0435\u0442\u0441\u044F \u043D\u0430\u0440\u0443\u0448\u0435\u043D\u0438\u0435\u043C\n"
     <Condition>k__BackingField:
       ActionSequence:
-      - TestEnterZoneA
-      - TestEnterZoneB
+      - EnterZoneA
+      - EnterZoneB
       UnexpectedActionIsViolation: 1
       RequireState: 0
       RequiredStateId: 
       RequiredStateValue: 1
   - <Id>k__BackingField: StepState
-    <Title>k__BackingField: TestMachineState
-    <Instruction>k__BackingField: "\u041F\u0440\u043E\u0432\u0435\u0440\u043A\u0430
-      MachineState.Value"
+    <Title>k__BackingField: "\u041F\u0440\u043E\u0432\u0435\u0440\u0438\u0442\u044C
+      \u0432\u043A\u043B\u044E\u0447\u0435\u043D\u043D\u043E\u0435 \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u043E"
+    <Instruction>k__BackingField: "\u0412\u043A\u043B\u044E\u0447\u0438\u0442\u0435
+      \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u043E, \u0437\u0430\u0442\u0435\u043C
+      \u043D\u0430\u0436\u043C\u0438\u0442\u0435 \u043A\u043D\u043E\u043F\u043A\u0443
+      \u043F\u0440\u043E\u0432\u0435\u0440\u043A\u0438"
     <Condition>k__BackingField:
       ActionSequence:
       - PressMachineButton
@@ -86,41 +95,161 @@ MonoBehaviour:
       RequireState: 1
       RequiredStateId: MachineEnabled
       RequiredStateValue: 1
+  - <Id>k__BackingField: StepConfirmSettings
+    <Title>k__BackingField: "\u041F\u043E\u0434\u0442\u0432\u0435\u0440\u0434\u0438\u0442\u044C
+      \u043D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438"
+    <Instruction>k__BackingField: "\u041F\u043E\u0434\u0442\u0432\u0435\u0440\u0436\u0434\u0435\u043D\u0438\u0435
+      \u043D\u0430\u0441\u0442\u0440\u043E\u0435\u043A"
+    <Condition>k__BackingField:
+      ActionSequence:
+      - ConfirmSettingsAction
+      UnexpectedActionIsViolation: 1
+      RequireState: 0
+      RequiredStateId: 
+      RequiredStateValue: 1
+  - <Id>k__BackingField: StepConfirmCheck
+    <Title>k__BackingField: "\u041F\u043E\u0434\u0442\u0432\u0435\u0440\u0434\u0438\u0442\u044C
+      \u043F\u0440\u043E\u0432\u0435\u0440\u043A\u0443"
+    <Instruction>k__BackingField: "\u041F\u043E\u0434\u0442\u0432\u0435\u0440\u0436\u0434\u0435\u043D\u0438\u0435
+      \u043F\u0440\u043E\u0432\u0435\u0440\u043A\u0438"
+    <Condition>k__BackingField:
+      ActionSequence:
+      - ConfirmCheckAction
+      UnexpectedActionIsViolation: 1
+      RequireState: 0
+      RequiredStateId: 
+      RequiredStateValue: 1
+  - <Id>k__BackingField: StepCheckLeftAssembly
+    <Title>k__BackingField: "\u041F\u0440\u043E\u0432\u0435\u0440\u0438\u0442\u044C
+      \u043B\u0435\u0432\u044B\u0439 \u0443\u0437\u0435\u043B"
+    <Instruction>k__BackingField: "\u041F\u0440\u043E\u0432\u0435\u0440\u043A\u0430
+      \u043B\u0435\u0432\u043E\u0433\u043E \u0443\u0437\u043B\u0430"
+    <Condition>k__BackingField:
+      ActionSequence:
+      - CheckLeftAssemblyAction
+      UnexpectedActionIsViolation: 1
+      RequireState: 0
+      RequiredStateId: 
+      RequiredStateValue: 1
+  - <Id>k__BackingField: StepCheckRightAssembly
+    <Title>k__BackingField: "\u041F\u0440\u043E\u0432\u0435\u0440\u0438\u0442\u044C
+      \u043F\u0440\u0430\u0432\u044B\u0439 \u0443\u0437\u0435\u043B"
+    <Instruction>k__BackingField: "\u041F\u0440\u043E\u0432\u0435\u0440\u043A\u0430
+      \u043F\u0440\u0430\u0432\u043E\u0433\u043E \u0443\u0437\u043B\u0430"
+    <Condition>k__BackingField:
+      ActionSequence:
+      - CheckRightAssemblyAction
+      UnexpectedActionIsViolation: 1
+      RequireState: 0
+      RequiredStateId: 
+      RequiredStateValue: 1
+  - <Id>k__BackingField: StepConfirmResult
+    <Title>k__BackingField: "\u041F\u043E\u0434\u0442\u0432\u0435\u0440\u0434\u0438\u0442\u044C
+      \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442"
+    <Instruction>k__BackingField: "\u041F\u043E\u0434\u0442\u0432\u0435\u0440\u0436\u0434\u0435\u043D\u0438\u0435
+      \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442\u0430"
+    <Condition>k__BackingField:
+      ActionSequence:
+      - ConfirmResultAction
+      UnexpectedActionIsViolation: 1
+      RequireState: 0
+      RequiredStateId: 
+      RequiredStateValue: 1
+  - <Id>k__BackingField: StepConfirmProtocol
+    <Title>k__BackingField: "\u041F\u043E\u0434\u0442\u0432\u0435\u0440\u0434\u0438\u0442\u044C
+      \u043F\u0440\u043E\u0442\u043E\u043A\u043E\u043B"
+    <Instruction>k__BackingField: "\u041F\u043E\u0434\u0442\u0432\u0435\u0440\u0436\u0434\u0435\u043D\u0438\u0435
+      \u043F\u0440\u043E\u0442\u043E\u043A\u043E\u043B\u0430"
+    <Condition>k__BackingField:
+      ActionSequence:
+      - ConfirmProtocolAction
+      UnexpectedActionIsViolation: 1
+      RequireState: 0
+      RequiredStateId: 
+      RequiredStateValue: 1
   <TrainingPlan>k__BackingField:
-  - <Name>k__BackingField: AllSteps
+  - <Name>k__BackingField: "\u041F\u0435\u0440\u0432\u0438\u0447\u043D\u0430\u044F
+      \u043F\u043E\u0434\u0433\u043E\u0442\u043E\u0432\u043A\u0430"
     <StepIds>k__BackingField:
-    - TestButton
-    - TestTrigger
-    - TestCollision
-    - TestUnityEvent
-    - TestTriggerSequence
+    - StepStartButton
+    - StepWorkAreaTrigger
+    - ControlSurfaceTouch
+    - ConfirmReady
+  - <Name>k__BackingField: "\u041A\u043E\u043D\u0442\u0440\u043E\u043B\u044C\u043D\u044B\u0439
+      \u043C\u0430\u0440\u0448\u0440\u0443\u0442"
+    <StepIds>k__BackingField:
+    - TriggerSequenceAB
+  - <Name>k__BackingField: "\u041F\u0440\u043E\u0432\u0435\u0440\u043A\u0430 \u0443\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u0430"
+    <StepIds>k__BackingField:
     - StepState
+  - <Name>k__BackingField: "\u041F\u043E\u0434\u0442\u0432\u0435\u0440\u0436\u0434\u0435\u043D\u0438\u0435
+      \u043D\u0430\u0441\u0442\u0440\u043E\u0435\u043A"
+    <StepIds>k__BackingField:
+    - StepConfirmSettings
+  - <Name>k__BackingField: "\u041F\u043E\u0434\u0442\u0432\u0435\u0440\u0436\u0434\u0435\u043D\u0438\u0435
+      \u043F\u0440\u043E\u0432\u0435\u0440\u043A\u0438"
+    <StepIds>k__BackingField:
+    - StepConfirmCheck
+  - <Name>k__BackingField: "\u041F\u0440\u043E\u0432\u0435\u0440\u043A\u0430 \u0443\u0437\u043B\u043E\u0432"
+    <StepIds>k__BackingField:
+    - StepCheckLeftAssembly
+    - StepCheckRightAssembly
+  - <Name>k__BackingField: "\u0418\u0442\u043E\u0433\u043E\u0432\u044B\u0435 \u043F\u043E\u0434\u0442\u0432\u0435\u0440\u0436\u0434\u0435\u043D\u0438\u044F"
+    <StepIds>k__BackingField:
+    - StepConfirmResult
+    - StepConfirmProtocol
   <ExamPlan>k__BackingField:
-  - <Name>k__BackingField: Package1
+  - <Name>k__BackingField: "\u041F\u0435\u0440\u0432\u0438\u0447\u043D\u0430\u044F
+      \u043F\u043E\u0434\u0433\u043E\u0442\u043E\u0432\u043A\u0430"
     <StepIds>k__BackingField:
-    - TestButton
-    - TestTrigger
-    - TestCollision
-    - TestUnityEvent
-  - <Name>k__BackingField: Package2
+    - StepStartButton
+    - StepWorkAreaTrigger
+    - ControlSurfaceTouch
+    - ConfirmReady
+  - <Name>k__BackingField: "\u041A\u043E\u043D\u0442\u0440\u043E\u043B\u044C\u043D\u044B\u0439
+      \u043C\u0430\u0440\u0448\u0440\u0443\u0442"
     <StepIds>k__BackingField:
-    - TestTriggerSequence
-  - <Name>k__BackingField: Package3
+    - TriggerSequenceAB
+  - <Name>k__BackingField: "\u0423\u0441\u0442\u0440\u043E\u0439\u0441\u0442\u0432\u043E
+      \u0438 \u043D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438"
     <StepIds>k__BackingField:
     - StepState
+    - StepConfirmSettings
+  - <Name>k__BackingField: "\u041F\u043E\u0434\u0442\u0432\u0435\u0440\u0436\u0434\u0435\u043D\u0438\u0435
+      \u043F\u0440\u043E\u0432\u0435\u0440\u043A\u0438"
+    <StepIds>k__BackingField:
+    - StepConfirmCheck
+  - <Name>k__BackingField: "\u041B\u0435\u0432\u044B\u0439 \u0443\u0437\u0435\u043B"
+    <StepIds>k__BackingField:
+    - StepCheckLeftAssembly
+  - <Name>k__BackingField: "\u041F\u0440\u0430\u0432\u044B\u0439 \u0443\u0437\u0435\u043B"
+    <StepIds>k__BackingField:
+    - StepCheckRightAssembly
+  - <Name>k__BackingField: "\u0418\u0442\u043E\u0433\u043E\u0432\u044B\u0435\u0435
+      \u043F\u043E\u0434\u0442\u0432\u0435\u0440\u0436\u0434\u0435\u043D\u0438\u044F"
+    <StepIds>k__BackingField:
+    - StepConfirmResult
+    - StepConfirmProtocol
   <ExamGroups>k__BackingField:
-  - <Name>k__BackingField: Group1
+  - <Name>k__BackingField: "\u041F\u0435\u0440\u0432\u0438\u0447\u043D\u0430\u044F
+      \u043F\u043E\u0434\u0433\u043E\u0442\u043E\u0432\u043A\u0430"
     <StepIds>k__BackingField:
-    - TestButton
-    - TestTrigger
-    - TestCollision
-    - TestUnityEvent
+    - StepStartButton
+    - StepWorkAreaTrigger
+    - ControlSurfaceTouch
+    - ConfirmReady
     <ViolationLimit>k__BackingField: 2
-  - <Name>k__BackingField: Group2
+  - <Name>k__BackingField: "\u041E\u0441\u043D\u043E\u0432\u043D\u0430\u044F \u043F\u0440\u043E\u0432\u0435\u0440\u043A\u0430"
     <StepIds>k__BackingField:
-    - TestTriggerSequence
-    <ViolationLimit>k__BackingField: 2
-  - <Name>k__BackingField: Group3
-    <StepIds>k__BackingField:
+    - TriggerSequenceAB
     - StepState
+    - StepConfirmSettings
+    - StepConfirmCheck
+    <ViolationLimit>k__BackingField: 2
+  - <Name>k__BackingField: "\u0418\u0442\u043E\u0433\u043E\u0432\u0430\u044F \u043F\u0440\u043E\u0432\u0435\u0440\u043A\u0430"
+    <StepIds>k__BackingField:
+    - StepCheckLeftAssembly
+    - StepCheckRightAssembly
+    - StepConfirmResult
+    - StepConfirmProtocol
     <ViolationLimit>k__BackingField: 2

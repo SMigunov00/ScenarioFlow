@@ -34,6 +34,13 @@ public sealed class ScenarioRunner : MonoBehaviour
     private bool _isProcessingActions;
     
     private IModePolicy _modePolicy;
+    
+    public event Action StateChanged;
+    public event Action<RunEvent> EventRecorded;
+
+    public ScenarioData Scenario => _scenarioData;
+
+    public RunMode CurrentMode => _runtimeSettings?.Mode ?? _defaultSettings?.Mode ?? RunMode.Training;
 
     private void OnEnable()
     {
@@ -54,6 +61,24 @@ public sealed class ScenarioRunner : MonoBehaviour
         }
 
         _subscribedSources.Clear();
+    }
+    
+    public bool TryStartScenario(RunMode mode)
+    {
+        if (IsRunning)
+            return false;
+
+        if (_defaultSettings == null)
+        {
+            Debug.LogError("Не заданы настройки запуска.", this);
+            return false;
+        }
+
+        _defaultSettings.SetMode(mode);
+
+        StartScenario();
+
+        return IsRunning;
     }
 
     public void StartScenario()
@@ -79,7 +104,7 @@ public sealed class ScenarioRunner : MonoBehaviour
         {
             runState = new RunState(_scenarioData);
             activationScheduler = new ActivationScheduler(_scenarioData.GetActivationPlan(newSettings.Mode), runState);
-            newLogger = CreateLogger(newSettings.LoggerType);
+            newLogger = CreateLogger(newSettings);
             newModePolicy = CreateModePolicy(newSettings.Mode, runState);
         }
         catch (ArgumentException exception)
@@ -100,16 +125,33 @@ public sealed class ScenarioRunner : MonoBehaviour
         RunStarted?.Invoke(_scenarioData, _runtimeSettings.CreateCopy());
     }
 
-    private static IRunLogger CreateLogger(LoggerType loggerType)
+    private static IRunLogger CreateLogger(RunSettings settings)
     {
-        switch (loggerType)
+        switch (settings.LoggerType)
         {
             case LoggerType.Console:
                 return new ConsoleRunLogger();
+
             case LoggerType.Json:
-                return new JsonRunLogger();
+                return new JsonRunLogger(settings.JournalDirectory);
+
             default:
-                throw new ArgumentOutOfRangeException(nameof(loggerType));
+                throw new ArgumentOutOfRangeException(nameof(settings.LoggerType));
+        }
+    }
+    
+    public string JournalDirectory => JsonRunLogger.ResolveDirectory((_runtimeSettings ?? _defaultSettings).JournalDirectory);
+
+    public string CurrentJournalPath
+    {
+        get
+        {
+            RunSettings settings = _runtimeSettings ?? _defaultSettings;
+
+            if (settings.LoggerType != LoggerType.Json || !HasRun || CurrentJournal == null)
+                return null;
+            
+            return JsonRunLogger.GetFilePath(JournalDirectory, CurrentJournal.RunId);
         }
     }
 
@@ -199,7 +241,10 @@ public sealed class ScenarioRunner : MonoBehaviour
         try
         {
             while (IsRunning && _pendingActions.Count > 0)
+            {
                 ProcessAction(_pendingActions.Dequeue());
+                StateChanged?.Invoke();
+            }
         }
         finally
         {
@@ -296,6 +341,7 @@ public sealed class ScenarioRunner : MonoBehaviour
         {
             Debug.LogError($"Не удалось вывести или сохранить событие: {exception.Message} {this}");
         }
+        EventRecorded?.Invoke(runEvent);
     }
 
     private StepData FindStepDefinition(string stepId)
@@ -338,5 +384,23 @@ public sealed class ScenarioRunner : MonoBehaviour
             RecordEvent(RunEventTypes.StepStatusChanged, stepId: step.StepId, result: step.Status.ToString());
         
         RefreshActivation();
+    }
+    
+    public bool ClearFinishedRun()
+    {
+        if (IsRunning || _isProcessingActions)
+            return false;
+
+        CurrentRun = null;
+        CurrentJournal = null;
+        _runtimeSettings = null;
+        _activationScheduler = null;
+        _modePolicy = null;
+        logger = null;
+        
+        _pendingActions.Clear();
+        StateChanged?.Invoke();
+
+        return true;
     }
 }

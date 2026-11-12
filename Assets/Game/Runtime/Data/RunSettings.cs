@@ -28,6 +28,7 @@ public enum OutOfOrderBehavior
 [Serializable]
 public sealed class RunSettings
 {
+    [field: SerializeField] public string JournalDirectory { get; private set; } = "ScenarioFlow/Logs";
     [field: SerializeField] public RunMode Mode { get; private set; } =  RunMode.Training;
     [field: SerializeField] public LoggerType LoggerType { get; private set; } = LoggerType.Console;
     [field: SerializeField] public AnalyzerType AnalyzerType { get; private set; } = AnalyzerType.TrainigScore;
@@ -37,6 +38,7 @@ public sealed class RunSettings
     {
         return new RunSettings
         {
+            JournalDirectory = this.JournalDirectory,
             Mode = this.Mode,
             LoggerType = this.LoggerType,
             AnalyzerType = this.AnalyzerType,
@@ -45,4 +47,7 @@ public sealed class RunSettings
     }
     
     internal void SetAnalyzer(AnalyzerType analyzerType) =>  AnalyzerType = analyzerType;
+    
+    internal void SetMode(RunMode value) => Mode = value;
+    
 }

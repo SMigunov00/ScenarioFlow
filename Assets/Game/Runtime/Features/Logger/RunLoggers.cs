@@ -18,13 +18,31 @@ public sealed class ConsoleRunLogger : IRunLogger
 
 public sealed class JsonRunLogger : IRunLogger
 {
+    private readonly string _directory;
+
+    public JsonRunLogger(string directory = null)
+    {
+        _directory = ResolveDirectory(directory);
+    }
+    
+    public static string ResolveDirectory(string directory)
+    {
+        if (string.IsNullOrWhiteSpace(directory))
+            directory = "ScenarioFlow/Logs";
+
+        return Path.GetFullPath(Path.IsPathRooted(directory) ? directory : Path.Combine(Application.persistentDataPath, directory));
+    }
+
+    public static string GetFilePath(string directory, string runId)
+    {
+        return Path.Combine(directory, runId + ".json");
+    }
+    
     public void Write(RunJournal journal, RunEvent runEvent)
     {
-        string directory = Path.Combine(Application.persistentDataPath, "ScenarioFlow", "Logs");
-        Directory.CreateDirectory(directory);
+        Directory.CreateDirectory(_directory);
 
-        string filePath = Path.Combine(directory, journal.RunId + ".json");
-        
+        string filePath = GetFilePath(_directory, journal.RunId);
         string json = JsonUtility.ToJson(journal, true);
 
         File.WriteAllText(filePath, json);
@@ -42,11 +60,8 @@ public sealed class JsonRunLogger : IRunLogger
             var loaded =
                 JsonUtility.FromJson<RunJournal>(json);
 
-            if (loaded == null ||
-                loaded.SchemaVersion != 1 ||
-                string.IsNullOrWhiteSpace(loaded.RunId) ||
-                loaded.StepIds == null ||
-                loaded.Events == null)
+            if (loaded == null || loaded.SchemaVersion != 1 || string.IsNullOrWhiteSpace(loaded.RunId) ||
+                loaded.StepIds == null || loaded.Events == null)
             {
                 error = "Неподдерживаемый или повреждённый журнал";
                 return false;
